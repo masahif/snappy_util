@@ -168,7 +168,10 @@ class SnappyJavaFile(io.BufferedIOBase):
         return True
 
     def seek(self, offset, whence=0):
-        self.fileobj.seek(offset, whence)
+        return self.fileobj.seek(offset, whence)
+
+    def tell(self):
+        return self.fileobj.tell()
 
     def readline(self, size=-1):
         while(True):
