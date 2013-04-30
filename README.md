@@ -1,4 +1,5 @@
-snappy_util
-===========
+snappy_util for python
+==============================
 
-snappy utility for Ptyhon
+snappy_util is aimed to read non-standard encoding snappy format.
+
