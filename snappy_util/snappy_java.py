@@ -67,6 +67,9 @@ class SnappyJavaFile(io.BufferedIOBase):
         self.fileobj = fileobj
         self.offset = 0
 
+        if self._new_member:
+            self._read_snappy_java_header()
+            self._new_member = False
         
     @property
     def filename(self):
@@ -124,10 +127,6 @@ class SnappyJavaFile(io.BufferedIOBase):
         return tmp_buf
 
     def _read(self, size=1024*30):
-        if self._new_member:
-            self._read_snappy_java_header()
-            self._new_member = False
-
         raw_chunk_size = self.fileobj.read(4)
         if not raw_chunk_size:
             return False
@@ -183,8 +182,3 @@ class SnappyJavaFile(io.BufferedIOBase):
 
             if not self._read():
                 return ""
-
-            
-
-
-        
