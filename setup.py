@@ -11,7 +11,7 @@ setup(name='snappy_util',
       author_email='author@fukuda.org',
       url='http://twitter.com/masahif2',
       packages = find_packages(),
-      install_requires = ['snappy'],
+      install_requires = ['python-snappy'],
       
 )
 
