@@ -23,6 +23,7 @@ class SnappyJavaFile(io.BufferedIOBase):
     """
     myfileobj = None
     max_read_chunk = 10 * 1024 * 1024 # 10Mb
+    pos = 0
 
     def __init__(self, filename=None, mode=None, fileobj=None):
         """Constructor for the SnappyJavaFile class.
@@ -110,14 +111,14 @@ class SnappyJavaFile(io.BufferedIOBase):
         compatible_version = struct_unpack("<H", self._read_exact(2))
 
     def read(self, size=-1):
-        self.check_closed()
+        self._check_closed()
 
         if self.extrasize <= 0 and self.fileobj is None:
             return ''
 
         self._read()
         
-        if len(self.extrabuf) > size:
+        if size > 0 and len(self.extrabuf) > size:
             tmp_buf = self.extrabuf[0:size]
             self.extrabuf = self.extrabuf[size:]
         else:
@@ -132,6 +133,7 @@ class SnappyJavaFile(io.BufferedIOBase):
             return False
         chunk_size = struct_unpack(">L", raw_chunk_size)[0]
         chunk = snappy_uncompress(self._read_exact(chunk_size))
+        self.pos += len(chunk)
 
         if self.extrabuf:
             self.extrabuf += chunk
@@ -167,10 +169,22 @@ class SnappyJavaFile(io.BufferedIOBase):
         return True
 
     def seek(self, offset, whence=0):
-        return self.fileobj.seek(offset, whence)
+        if whence != 0:
+            return False
+
+        self.fileobj.seek(16) # len of header
+        self.pos = 0
+        buf = ""
+        while(offset > self.pos):
+            buf = self.read()
+
+        idx = offset - self.pos
+        print "idx: %d" % idx
+        print "buf: " + buf
+        self.extrabuf = buf[idx:]
 
     def tell(self):
-        return self.fileobj.tell()
+        return self.pos - len(self.extrabuf)
 
     def readline(self, size=-1):
         while(True):
